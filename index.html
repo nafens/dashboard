@@ -264,7 +264,7 @@ const SIZES = [
   { name: 'X-large', cols: 1 },
 ];
 
-function useFacets(items, facetKeys) {
+function useFacets(items, facetKeys, { single = [] } = {}) {   // single: facets that allow one selected value
   const selected = reactive(Object.fromEntries(facetKeys.map(k => [k, new Set()])));
   const passes = (item, except) =>
     facetKeys.every(k => k === except || selected[k].size === 0 || selected[k].has(String(item[k])));
@@ -279,7 +279,11 @@ function useFacets(items, facetKeys) {
     }
     return [k, [...counts]];               // insertion order = order in items
   })));
-  const toggle = (k, v) => selected[k].has(v) ? selected[k].delete(v) : selected[k].add(v);
+  const toggle = (k, v) => {
+    if (selected[k].has(v)) return selected[k].delete(v);
+    if (single.includes(k)) selected[k].clear();     // radio-style: one value at a time
+    selected[k].add(v);
+  };
   const clear = () => facetKeys.forEach(k => selected[k].clear());
   return { selected, results, facets, toggle, clear };
 }
@@ -343,7 +347,7 @@ const thumb = type => `<svg viewBox="0 0 300 200" xmlns="http://www.w3.org/2000/
 
 createApp({
   setup() {
-    const f = useFacets(items, ['study', 'view', 'type']);
+    const f = useFacets(items, ['study', 'view', 'type'], { single: ['study'] });
     const activeCount = computed(() => f.selected.study.size + f.selected.view.size + f.selected.type.size);
         const sizeIdx = ref(1);                                   // default: Small (4 per row)
     const colClass = computed(() => 'ecl-col-l-' + (12 / SIZES[sizeIdx.value].cols));
