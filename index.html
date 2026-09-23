@@ -176,31 +176,31 @@ html, body { margin: 0; background: var(--demo-bg); font-family: Inter, arial, s
 <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/3.4.38/vue.global.prod.min.js"></script>
 <script>
 const STUDIES = ['Historical', 'Estimates', 'Long term', 'Childhood', 'Survival', 'Prevalence'];
-// full titles as in the site menu; descriptions condensed from the "ECIS contributing studies" page
+// full titles as in the site menu; descriptions from the data explorer studies_list (public mode)
 const STUDY_INFO = {
   'Historical': {
     title: 'Incidence and mortality historical data',
-    text: 'Observed incidence from population-based cancer registries affiliated to the ENCR, and mortality from national statistical offices or Eurostat. Indicators by cancer entity, sex, age group, calendar period and area, computed from data submitted by 127 registries in 32 European countries.',
+    text: 'Observed incidence and mortality over time by cancer entity and demographic variables in European cancer registration areas.',
     href: 'https://ecis.jrc.ec.europa.eu/ecis-contributing-studies#historical-incidence-and-mortality' },
   'Estimates': {
     title: 'Incidence and mortality estimates 2024',
-    text: 'National estimates of new cases and deaths for 2024 in the EU-27, EFTA and selected other European countries, produced jointly by the JRC and IARC with the ENCR and IACR. They bridge the gap until observed national data become available and may differ from national figures because of data sources and methods.',
+    text: 'Estimates of incidence and mortality for leading cancers in European countries, derived from predictive models. These figures may differ from observed data or estimates produced by national authorities due to variations in data sources and estimation methods.',
     href: 'https://ecis.jrc.ec.europa.eu/ecis-contributing-studies#incidence-and-mortality-estimates' },
   'Long term': {
     title: 'Long-term incidence and mortality estimates up to 2050',
-    text: 'Projections for 2030 to 2050 that apply the estimated 2024 rates to Eurostat population projections under several demographic scenarios. Rates are held constant, so the figures show the effect of population ageing alone and should be read with caution.',
+    text: 'Estimates of incidence and mortality up to 2050 according to different population scenarios for leading cancers in European countries.',
     href: 'https://ecis.jrc.ec.europa.eu/ecis-contributing-studies#long-term-estimates' },
   'Childhood': {
     title: 'Childhood incidence historical data',
-    text: 'Observed incidence in the childhood population by ICCC-3 diagnostic group, age group, calendar period and area, for both sexes combined, from 96 ENCR registries in 31 countries. Values are shown only where at least three years of data are available.',
+    text: 'Observed childhood incidence over time, by childhood diagnostic group in European cancer registration areas.',
     href: 'https://ecis.jrc.ec.europa.eu/ecis-contributing-studies#historical-childhood-incidence' },
   'Survival': {
     title: 'Survival estimates',
-    text: 'Relative survival from the EUROCARE-5 project, covering patients diagnosed in 1999–2007 in 26 European countries, based on more than 21 million cancer diagnoses from 99 registries.',
+    text: 'Estimated survival by cancer entity and sex across European countries and time.',
     href: 'https://ecis.jrc.ec.europa.eu/ecis-contributing-studies#survival-eurocare-5' },
   'Prevalence': {
     title: 'Prevalence estimates 2020',
-    text: 'Numbers of people alive after a cancer diagnosis, estimated to 2020 by the EUROCARE-6 project from about 28 million diagnoses recorded by 117 registries in 31 European countries.',
+    text: 'Estimated prevalence by cancer entity and sex across European countries and time.',
     href: 'https://ecis.jrc.ec.europa.eu/ecis-contributing-studies#prevalence-eurocare-6' },
 };
 // color: the scenario colour (swatch, card label, thumbnail)
