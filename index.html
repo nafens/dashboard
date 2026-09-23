@@ -60,8 +60,6 @@ html, body { margin: 0; background: var(--demo-bg); font-family: Inter, arial, s
 .study-intro__title { font-size: 1.125rem; font-weight: 600; margin: 0 0 6px; }
 .study-intro__text { margin: 0; color: #171717; line-height: 1.5; }
 .study-intro__text .ecl-link { margin-left: .25em; white-space: nowrap; }
-.fade-enter-active, .fade-leave-active { transition: opacity .2s ease; }
-.fade-enter-from, .fade-leave-to { opacity: 0; }
 /* grid = ECL grid; each column is the TransitionGroup child */
 .cards.ecl-row { position: relative; }
 .card-col { margin-bottom: 1rem; }
@@ -127,13 +125,11 @@ html, body { margin: 0; background: var(--demo-bg); font-family: Inter, arial, s
     </aside>
 
     <main class="ecl-col-12 ecl-col-l-9">
-      <Transition name="fade" mode="out-in">
-        <section v-if="currentStudy" :key="currentStudy" class="study-intro" aria-live="polite">
+        <section v-if="currentStudy" class="study-intro" aria-live="polite">
           <h2 class="study-intro__title">{{ STUDY_INFO[currentStudy].title }}</h2>
           <p class="study-intro__text">{{ STUDY_INFO[currentStudy].text }}
             <a class="ecl-link" :href="STUDY_INFO[currentStudy].href" target="_blank" rel="noopener">More about this study</a></p>
         </section>
-      </Transition>
 
       <div class="size-bar">
         <!-- card size slider — disabled for now, uncomment to bring it back
