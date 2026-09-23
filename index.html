@@ -55,6 +55,13 @@ html, body { margin: 0; background: var(--demo-bg); font-family: Inter, arial, s
 .size-ticks button { background: none; border: 0; padding: 2px 0; font: inherit; font-size: .75rem; color: var(--demo-muted); cursor: pointer; position: relative; }
 .size-ticks button::before { content: ""; display: block; width: 1px; height: 6px; background: #171717; margin: 0 auto 3px; }
 .size-ticks button.is-current { color: #0e47cb; font-weight: 600; }
+/* study description panel */
+.study-intro { background: var(--demo-panel); padding: 14px 18px; margin: 0 0 16px; border-radius: 4px; }
+.study-intro__title { font-size: 1.125rem; font-weight: 600; margin: 0 0 6px; }
+.study-intro__text { margin: 0; color: #171717; line-height: 1.5; }
+.study-intro__text .ecl-link { margin-left: .25em; white-space: nowrap; }
+.fade-enter-active, .fade-leave-active { transition: opacity .2s ease; }
+.fade-enter-from, .fade-leave-to { opacity: 0; }
 /* grid = ECL grid; each column is the TransitionGroup child */
 .cards.ecl-row { position: relative; }
 .card-col { margin-bottom: 1rem; }
@@ -120,6 +127,14 @@ html, body { margin: 0; background: var(--demo-bg); font-family: Inter, arial, s
     </aside>
 
     <main class="ecl-col-12 ecl-col-l-9">
+      <Transition name="fade" mode="out-in">
+        <section v-if="currentStudy" :key="currentStudy" class="study-intro" aria-live="polite">
+          <h2 class="study-intro__title">{{ STUDY_INFO[currentStudy].title }}</h2>
+          <p class="study-intro__text">{{ STUDY_INFO[currentStudy].text }}
+            <a class="ecl-link" :href="STUDY_INFO[currentStudy].href" target="_blank" rel="noopener">More about this study</a></p>
+        </section>
+      </Transition>
+
       <div class="size-bar">
         <!-- card size slider — disabled for now, uncomment to bring it back
         <label class="ecl-form-label" for="card-size">Card size</label>
@@ -161,6 +176,33 @@ html, body { margin: 0; background: var(--demo-bg); font-family: Inter, arial, s
 <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/3.4.38/vue.global.prod.min.js"></script>
 <script>
 const STUDIES = ['Historical', 'Estimates', 'Long term', 'Childhood', 'Survival', 'Prevalence'];
+// full titles as in the site menu; descriptions condensed from the "ECIS contributing studies" page
+const STUDY_INFO = {
+  'Historical': {
+    title: 'Incidence and mortality historical data',
+    text: 'Observed incidence from population-based cancer registries affiliated to the ENCR, and mortality from national statistical offices or Eurostat. Indicators by cancer entity, sex, age group, calendar period and area, computed from data submitted by 127 registries in 32 European countries.',
+    href: 'https://ecis.jrc.ec.europa.eu/ecis-contributing-studies#historical-incidence-and-mortality' },
+  'Estimates': {
+    title: 'Incidence and mortality estimates 2024',
+    text: 'National estimates of new cases and deaths for 2024 in the EU-27, EFTA and selected other European countries, produced jointly by the JRC and IARC with the ENCR and IACR. They bridge the gap until observed national data become available and may differ from national figures because of data sources and methods.',
+    href: 'https://ecis.jrc.ec.europa.eu/ecis-contributing-studies#incidence-and-mortality-estimates' },
+  'Long term': {
+    title: 'Long-term incidence and mortality estimates up to 2050',
+    text: 'Projections for 2030 to 2050 that apply the estimated 2024 rates to Eurostat population projections under several demographic scenarios. Rates are held constant, so the figures show the effect of population ageing alone and should be read with caution.',
+    href: 'https://ecis.jrc.ec.europa.eu/ecis-contributing-studies#long-term-estimates' },
+  'Childhood': {
+    title: 'Childhood incidence historical data',
+    text: 'Observed incidence in the childhood population by ICCC-3 diagnostic group, age group, calendar period and area, for both sexes combined, from 96 ENCR registries in 31 countries. Values are shown only where at least three years of data are available.',
+    href: 'https://ecis.jrc.ec.europa.eu/ecis-contributing-studies#historical-childhood-incidence' },
+  'Survival': {
+    title: 'Survival estimates',
+    text: 'Relative survival from the EUROCARE-5 project, covering patients diagnosed in 1999–2007 in 26 European countries, based on more than 21 million cancer diagnoses from 99 registries.',
+    href: 'https://ecis.jrc.ec.europa.eu/ecis-contributing-studies#survival-eurocare-5' },
+  'Prevalence': {
+    title: 'Prevalence estimates 2020',
+    text: 'Numbers of people alive after a cancer diagnosis, estimated to 2020 by the EUROCARE-6 project from about 28 million diagnoses recorded by 117 registries in 31 European countries.',
+    href: 'https://ecis.jrc.ec.europa.eu/ecis-contributing-studies#prevalence-eurocare-6' },
+};
 // color: the scenario colour (swatch, card label, thumbnail)
 // strong: a darker shade for the selected button so white text meets contrast
 const VIEWS = {
@@ -357,8 +399,9 @@ createApp({
       // un-zoomed parent, so no width compensation is needed
       return { zoom };
     });
+    const currentStudy = computed(() => [...f.selected.study][0] || null);   // single-select, so at most one
     const viewVars = v => ({ '--sc': VIEWS[v].color, '--sc-strong': VIEWS[v].strong, '--sc-fg': VIEWS[v].fg });
-    return { items, VIEWS, activeCount, thumb, viewVars, SIZES, sizeIdx, colClass, rowStyle, ...f };
+    return { items, VIEWS, STUDY_INFO, currentStudy, activeCount, thumb, viewVars, SIZES, sizeIdx, colClass, rowStyle, ...f };
   }
 }).mount('#app');
 </script>
