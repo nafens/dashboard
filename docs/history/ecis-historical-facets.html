@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ECIS historical data — card filter demo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@ecl/preset-ec@5.3.0/dist/styles/ecl-ec.css">
+<style>
+/* ---- demo-only styles; layout and cards are ECL ---- */
+:root { --demo-bg: #fff; --demo-muted: #4d4d4d; --demo-panel: #f3f6fc; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --demo-bg: #fff; } }
+:root[data-theme="dark"] { --demo-bg: #fff; }
+html, body { margin: 0; background: var(--demo-bg); font-family: Inter, arial, sans-serif; }
+[v-cloak] { display: none; }
+.demo-head { margin: 32px 0 20px; }
+.demo-head h1 { font-size: 1.75rem; font-weight: 700; line-height: 1.2; margin: 0 0 4px; }
+.demo-head p { margin: 0; color: var(--demo-muted); }
+/* filter bar */
+.filter-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; padding: 12px 0 20px; margin-bottom: 8px; border-bottom: 1px solid #cfd5dd; }
+.filter-bar .lbl { font-weight: 600; margin-right: 4px; }
+.scenario-btn { display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px; font: inherit; font-weight: 500;
+  background: #fff; color: #171717; border: 2px solid var(--sc); border-radius: 4px; cursor: pointer; transition: background .15s, color .15s; }
+.scenario-btn .swatch { width: 12px; height: 12px; border-radius: 3px; background: var(--sc); }
+.scenario-btn .count { font-variant-numeric: tabular-nums; font-size: .8125rem; background: var(--demo-panel); color: var(--demo-muted); padding: 0 7px; border-radius: 10px; }
+.scenario-btn:hover { background: color-mix(in srgb, var(--sc) 12%, #fff); }
+.scenario-btn.is-active { background: var(--sc); color: var(--sc-fg); }
+.scenario-btn.is-active .swatch { background: var(--sc-fg); }
+.scenario-btn.is-active .count { background: rgba(255,255,255,.3); color: var(--sc-fg); }
+.scenario-btn:focus-visible { outline: 3px solid #ffd617; outline-offset: 2px; }
+.filter-bar .n { margin-left: auto; color: var(--demo-muted); }
+.size-bar { display: flex; align-items: flex-start; gap: 16px; padding: 8px 0 20px; }
+.size-bar .ecl-form-label { margin: 6px 0 0; }
+.size-slider { width: 320px; max-width: 100%; }
+.size-name { color: var(--demo-muted); font-size: .875rem; margin-top: 6px; min-width: 9ch; }
+/* custom range: bordered track, bordered thumb, works in Chromium + Firefox */
+.size-range { -webkit-appearance: none; appearance: none; width: 100%; height: 28px; margin: 0; background: transparent; cursor: pointer; }
+.size-range::-webkit-slider-runnable-track { height: 10px; border-radius: 5px; background: #f3f6fc; border: 1px solid #171717; }
+.size-range::-moz-range-track          { height: 10px; border-radius: 5px; background: #f3f6fc; border: 1px solid #171717; box-sizing: border-box; }
+.size-range::-webkit-slider-thumb { -webkit-appearance: none; width: 22px; height: 22px; margin-top: -7px; border-radius: 50%;
+  background: #0e47cb; border: 2px solid #fff; box-shadow: 0 0 0 2px #171717; }
+.size-range::-moz-range-thumb { width: 18px; height: 18px; border-radius: 50%; background: #0e47cb; border: 2px solid #fff; box-shadow: 0 0 0 2px #171717; }
+.size-range:focus-visible { outline: none; }
+.size-range:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 2px #171717, 0 0 0 5px #ffd617; }
+.size-range:focus-visible::-moz-range-thumb     { box-shadow: 0 0 0 2px #171717, 0 0 0 5px #ffd617; }
+.size-ticks { display: flex; justify-content: space-between; margin: 2px 6px 0; }
+.size-ticks button { background: none; border: 0; padding: 2px 0; font: inherit; font-size: .75rem; color: var(--demo-muted); cursor: pointer; position: relative; }
+.size-ticks button::before { content: ""; display: block; width: 1px; height: 6px; background: #171717; margin: 0 auto 3px; }
+.size-ticks button.is-current { color: #0e47cb; font-weight: 600; }
+.cards.ecl-row { transition: zoom .25s ease; }
+.link-btn { background: none; border: 0; color: #0e47cb; text-decoration: underline; cursor: pointer; font: inherit; padding: 0; }
+/* grid = ECL grid; each column is the TransitionGroup child */
+.cards.ecl-row { position: relative; }
+.card-col { margin-bottom: 1rem; }
+.card-col .ecl-card { height: 100%; }
+.ecl-card__picture { display: block; margin: 0; width: 100%; }
+.ecl-card__picture .ecl-card__image { display: block; width: 100%; height: auto; aspect-ratio: 3 / 2; object-fit: cover; max-width: none; }
+.scenario-label { background: var(--sc) !important; color: var(--sc-fg) !important; border: 0 !important; }
+/* shuffle animation */
+.shuffle-move, .shuffle-enter-active { transition: transform .45s cubic-bezier(.22,1,.36,1), opacity .3s ease; }
+.shuffle-leave-active { transition: transform .25s ease, opacity .2s ease; position: absolute; }
+.shuffle-enter-from, .shuffle-leave-to { opacity: 0; transform: scale(.92); }
+@media (prefers-reduced-motion: reduce) { .shuffle-move, .shuffle-enter-active, .shuffle-leave-active { transition: none; } }
+.empty { border: 1px dashed #cfd5dd; padding: 40px; text-align: center; color: var(--demo-muted); border-radius: 4px; }
+.code-note { margin-top: 32px; padding: 16px 0 48px; border-top: 1px solid #cfd5dd; color: var(--demo-muted); font-size: .875rem; }
+.code-note code { font-family: ui-monospace, monospace; }
+</style>
+</head>
+<body>
+<div id="app" v-cloak class="ecl-container">
+  <header class="demo-head">
+    <h1>Incidence and mortality historical data</h1>
+    <p>Pick one or more views to filter the cards. Counts update as you go; cards shuffle into place.</p>
+  </header>
+
+  <div class="filter-bar" role="group" aria-label="Filter by scenario">
+    <span class="lbl">Show</span>
+    <button v-for="[value, count] in facets.scenario" :key="value" type="button" class="scenario-btn"
+            :class="{ 'is-active': selected.scenario.has(value) }"
+            :style="{ '--sc': SCENARIOS[value].color, '--sc-fg': SCENARIOS[value].fg }"
+            :aria-pressed="selected.scenario.has(value)"
+            @click="toggle('scenario', value)">
+      <span class="swatch"></span>{{ value }}<span class="count">{{ count }}</span>
+    </button>
+    <button v-if="activeCount" class="link-btn" type="button" @click="clear">Show all</button>
+    <span class="n">{{ results.length }} of {{ items.length }} cards</span>
+  </div>
+
+  <div class="size-bar">
+    <label class="ecl-form-label" for="card-size">Card size</label>
+    <div class="size-slider">
+      <input id="card-size" class="size-range" type="range" min="0" :max="SIZES.length - 1" step="1" v-model.number="sizeIdx"
+             :aria-valuetext="SIZES[sizeIdx].name" list="size-ticks">
+      <div class="size-ticks" aria-hidden="true">
+        <button v-for="(s, i) in SIZES" :key="s.name" type="button" :class="{ 'is-current': i === sizeIdx }" @click="sizeIdx = i">{{ s.name }}</button>
+      </div>
+    </div>
+    <span class="size-name">{{ SIZES[sizeIdx].cols }} per row</span>
+  </div>
+
+  <TransitionGroup tag="div" class="ecl-row cards" name="shuffle" :style="rowStyle">
+    <div v-for="r in results" :key="r.id" :class="['ecl-col-12 ecl-col-s-6 card-col', colClass]"
+         :style="{ '--sc': SCENARIOS[r.scenario].color, '--sc-fg': SCENARIOS[r.scenario].fg }">
+      <article class="ecl-card">
+        <picture class="ecl-picture ecl-card__picture">
+          <img class="ecl-card__image" :src="imgSrc(r)" :alt="r.type" loading="lazy" @error="imgFallback($event, r)">
+        </picture>
+        <div class="ecl-card__body">
+          <div class="ecl-content-block ecl-card__content-block">
+            <ul class="ecl-content-block__label-container">
+              <li class="ecl-content-block__label-item"><span class="ecl-label scenario-label">{{ r.scenario }}</span></li>
+            </ul>
+            <div class="ecl-content-block__title"><a class="ecl-link ecl-link--standalone" href="#" @click.prevent>{{ r.label }}</a></div>
+          </div>
+        </div>
+      </article>
+    </div>
+  </TransitionGroup>
+  <div v-if="!results.length" class="empty">No cards match. <button class="link-btn" type="button" @click="clear">Show all</button></div>
+
+  <p class="code-note">
+    Layout is the ECL grid (<code>ecl-container &gt; ecl-row &gt; ecl-col-12 ecl-col-s-6 ecl-col-l-N</code>, N from the size slider). The slider sets CSS <code>zoom</code> on the row and swaps the column class, so the cards reflow into more or fewer columns while every part of a card scales proportionally, cards are ECL default-card markup with picture, label and title. One facet (<code>scenario</code>) via <code>useFacets()</code>: several values = OR, none = all. Images load from the ECIS module assets; if they can't load (this hosted preview blocks cross-site images) a placeholder is drawn instead.
+  </p>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/vue/3.4.38/vue.global.prod.min.js"></script>
+<script>
+const IMG_BASE = 'https://ecis.jrc.ec.europa.eu/modules/custom/ecis2_data_explorer/dist/assets/';
+const SCENARIOS = {
+  'By age':      { color: '#FF8F73', fg: '#171717' },
+  'By cancer':   { color: '#2684FF', fg: '#fff' },
+  'By registry': { color: '#8777D9', fg: '#fff' },
+  'By year':     { color: '#36B37E', fg: '#fff' },
+};
+const items = [
+  { id: 'hist-cc-1', scenario: 'By age', label: 'Age-specific incidence/mortality', type: 'line chart' },
+  { id: 'hist-pop-1', scenario: 'By age', label: 'Population pyramid', type: 'pyramid' },
+  { id: 'hist-pop-2', scenario: 'By age', label: 'Population by year (summary)', type: 'data table' },
+  { id: 'hist-can-1', scenario: 'By cancer', label: 'Incidence/mortality', type: 'horizontal bar chart' },
+  { id: 'hist-can-2', scenario: 'By cancer', label: 'Incidence/mortality (summary)', type: 'data table' },
+  { id: 'hist-can-3', scenario: 'By cancer', label: 'Age-specific incidence/mortality (summary)', type: 'data table' },
+  { id: 'hist-cou-1', scenario: 'By registry', label: 'Incidence/mortality (map)', type: 'map' },
+  { id: 'hist-cou-2', scenario: 'By registry', label: 'Incidence/mortality', type: 'horizontal bar chart' },
+  { id: 'hist-cou-3', scenario: 'By registry', label: 'Incidence/mortality (summary)', type: 'data table' },
+  { id: 'hist-pop-3', scenario: 'By registry', label: 'Population by age (summary)', type: 'data table' },
+  { id: 'hist-cc-3', scenario: 'By year', label: 'Incidence/mortality trends', type: 'line chart' },
+  { id: 'hist-cc-2', scenario: 'By year', label: 'Incidence/mortality trends by age', type: 'line chart' },
+  { id: 'hist-cc-4', scenario: 'By year', label: 'Incidence/mortality trends by age-period-cohort', type: 'line chart' },
+  { id: 'hist-cc-5', scenario: 'By year', label: 'Incidence/mortality (summary)', type: 'data table' },
+];
+
+const { createApp, ref, reactive, computed } = Vue;
+
+// slider steps: how many cards per row on large screens. Zoom is relative to the
+// 4-column layout (zoom 1 = ECL's normal card size), so everything inside a card
+// scales together - image, label, title, description, spacing.
+const SIZES = [
+  { name: 'X-small', cols: 12 },
+  { name: 'Small',  cols: 6 },
+  { name: 'Medium', cols: 4 },
+  { name: 'Large',  cols: 3 },
+  { name: 'X-large', cols: 2 },
+];
+
+function useFacets(items, facetKeys) {
+  const selected = reactive(Object.fromEntries(facetKeys.map(k => [k, new Set()])));
+  const passes = (item, except) =>
+    facetKeys.every(k => k === except || selected[k].size === 0 || selected[k].has(String(item[k])));
+  const results = computed(() => items.filter(i => passes(i)));
+  const facets = computed(() => Object.fromEntries(facetKeys.map(k => {
+    const counts = new Map();
+    for (const i of items) {
+      const v = String(i[k]);
+      if (!counts.has(v)) counts.set(v, 0);
+      if (passes(i, k)) counts.set(v, counts.get(v) + 1);
+    }
+    return [k, [...counts]];               // keep insertion order (= items order)
+  })));
+  const toggle = (k, v) => selected[k].has(v) ? selected[k].delete(v) : selected[k].add(v);
+  const clear = () => facetKeys.forEach(k => selected[k].clear());
+  return { selected, results, facets, toggle, clear };
+}
+
+// simple SVG placeholder used only when the real asset can't be loaded
+const placeholder = (r) => {   // 300x200, same 3:2 ratio as the card image
+  const c = SCENARIOS[r.scenario].color, glyph = {
+    'line chart': '<polyline points="30,110 90,70 150,85 210,40 270,55" fill="none" stroke="#fff" stroke-width="6" stroke-linejoin="round"/>',
+    'horizontal bar chart': '<rect x="30" y="35" width="200" height="18" fill="#fff"/><rect x="30" y="66" width="140" height="18" fill="#fff"/><rect x="30" y="97" width="240" height="18" fill="#fff"/><rect x="30" y="128" width="90" height="18" fill="#fff"/>',
+    'data table': '<g fill="#fff"><rect x="30" y="35" width="240" height="14"/><rect x="30" y="62" width="240" height="8" opacity=".6"/><rect x="30" y="84" width="240" height="8" opacity=".6"/><rect x="30" y="106" width="240" height="8" opacity=".6"/><rect x="30" y="128" width="240" height="8" opacity=".6"/></g>',
+    'map': '<path d="M60 60 l40 -25 l50 15 l40 -10 l40 30 l-20 45 l-60 20 l-50 -10 l-30 -30 z" fill="#fff" opacity=".9"/>',
+    'pyramid': '<g fill="#fff"><rect x="120" y="35" width="30" height="14"/><rect x="150" y="35" width="30" height="14" opacity=".6"/><rect x="100" y="56" width="50" height="14"/><rect x="150" y="56" width="50" height="14" opacity=".6"/><rect x="80" y="77" width="70" height="14"/><rect x="150" y="77" width="70" height="14" opacity=".6"/><rect x="55" y="98" width="95" height="14"/><rect x="150" y="98" width="95" height="14" opacity=".6"/><rect x="35" y="119" width="115" height="14"/><rect x="150" y="119" width="115" height="14" opacity=".6"/></g>',
+  }[r.type] || '';
+  return 'data:image/svg+xml;utf8,' + encodeURIComponent(
+    `<svg xmlns="http://www.w3.org/2000/svg" width="300" height="200" viewBox="0 0 300 200"><rect width="300" height="200" fill="${c}"/><g transform="translate(0 15)">${glyph}</g></svg>`);
+};
+
+createApp({
+  setup() {
+    const f = useFacets(items, ['scenario']);
+    const activeCount = computed(() => f.selected.scenario.size);
+    const imgSrc = r => IMG_BASE + r.id.replace(/-/g, '_') + '.png';
+    const imgFallback = (e, r) => { if (!e.target.dataset.fb) { e.target.dataset.fb = 1; e.target.src = placeholder(r); } };
+
+    const sizeIdx = ref(1);                                   // default: Small
+    const colClass = computed(() => 'ecl-col-l-' + (12 / SIZES[sizeIdx.value].cols));
+    const rowStyle = computed(() => {
+      const zoom = 4 / SIZES[sizeIdx.value].cols;             // 6 cols -> .667, 2 cols -> 2
+      // percentage widths inside a zoomed box already resolve against the
+      // un-zoomed parent, so no width compensation is needed
+      return { zoom };
+    });
+    return { items, SCENARIOS, activeCount, imgSrc, imgFallback, SIZES, sizeIdx, colClass, rowStyle, ...f };
+  }
+}).mount('#app');
+</script>
+</body>
+</html>

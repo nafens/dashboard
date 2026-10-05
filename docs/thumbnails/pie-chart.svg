@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 200" width="300" height="200" role="img" aria-label="pie chart">
+  <rect width="300" height="200" fill="#F5F7FB"/>
+    <g transform="translate(112 100)">
+      <path d="M0 0 L0 -62 A62 62 0 0 1 58.9 -19.2 Z" fill="#0E47CB"/>
+      <path d="M0 0 L58.9 -19.2 A62 62 0 0 1 20.4 58.6 Z" fill="#0E47CB" opacity=".7"/>
+      <path d="M0 0 L20.4 58.6 A62 62 0 0 1 -55.7 27.4 Z" fill="#0E47CB" opacity=".45"/>
+      <path d="M0 0 L-55.7 27.4 A62 62 0 0 1 0 -62 Z" fill="#0E47CB" opacity=".22"/>
+      <circle r="24" fill="#f5f7fb"/>
+    </g>
+    <g font-size="9" font-family="Inter,Arial" fill="#6b7686">
+      <rect x="200" y="62" width="10" height="10" fill="#0E47CB"/><text x="216" y="71">Breast 29%</text>
+      <rect x="200" y="82" width="10" height="10" fill="#0E47CB" opacity=".7"/><text x="216" y="91">Lung 24%</text>
+      <rect x="200" y="102" width="10" height="10" fill="#0E47CB" opacity=".45"/><text x="216" y="111">Colon 21%</text>
+      <rect x="200" y="122" width="10" height="10" fill="#0E47CB" opacity=".22"/><text x="216" y="131">Other 26%</text></g>
+</svg>

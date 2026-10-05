@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 200" width="300" height="200" role="img" aria-label="pyramid">
+  <rect width="300" height="200" fill="#F5F7FB"/>
+    <line x1="150" y1="28" x2="150" y2="172" stroke="#d5dbe5"/>
+    <g fill="#0E47CB"><rect x="132" y="30" width="16" height="12"/><rect x="118" y="46" width="30" height="12"/><rect x="102" y="62" width="46" height="12"/><rect x="88" y="78" width="60" height="12"/><rect x="72" y="94" width="76" height="12"/><rect x="62" y="110" width="86" height="12"/><rect x="56" y="126" width="92" height="12"/><rect x="60" y="142" width="88" height="12"/><rect x="70" y="158" width="78" height="12"/></g>
+    <g fill="#0E47CB" opacity=".5"><rect x="152" y="30" width="20" height="12"/><rect x="152" y="46" width="34" height="12"/><rect x="152" y="62" width="50" height="12"/><rect x="152" y="78" width="64" height="12"/><rect x="152" y="94" width="78" height="12"/><rect x="152" y="110" width="86" height="12"/><rect x="152" y="126" width="90" height="12"/><rect x="152" y="142" width="86" height="12"/><rect x="152" y="158" width="76" height="12"/></g>
+    <g font-size="9" font-family="Inter,Arial" fill="#6b7686"><text x="60" y="26">Women</text><text x="206" y="26">Men</text></g>
+</svg>
